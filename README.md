@@ -3,7 +3,7 @@ PcmImage
 
 Provides an object, and class methods, that allows a sound file to be rendered as a graphic waveform, through use of the Web Audio API.
 
-![Screenshot](http://url_to_project_screenshot)
+![Screenshot](https://raw.github.com/leegee/MooTools-PcmImage/master/Docs/pluck_600x200_steelblue_white.png)
 
 How to use
 ----------
