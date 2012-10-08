@@ -78,6 +78,6 @@ Instantiation of the object creates the image.
 Screenshots
 -----------
 
-![Screenshot of supplied pluck.wav](Docs/pluck_600x200_steelblue_white.png)
+![Screenshot of supplied pluck.wav](https://raw.github.com/leegee/MooTools-PcmImage/master/Docs/pluck_600x200_steelblue_white.png)
 
 
