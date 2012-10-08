@@ -8,7 +8,7 @@ authors:
 - Lee Goddard
 
 requires:
-- Core
+- core
 
 provides: [PcmImage]
 
