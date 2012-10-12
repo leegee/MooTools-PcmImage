@@ -8,14 +8,15 @@ authors:
 - Lee Goddard
 
 requires:
-- core
+- Core
+- Element/Measure
 
 provides: [PcmImage]
 
-...
 */
 
 /*
+	Version 0.2
 
 	This code is copyright (C) 2012 Lee Goddard, Server-side Systems Ltd.
 	All Rights Reserved.
@@ -24,11 +25,11 @@ provides: [PcmImage]
 
 	Provides events:
 	
-	onSoundLoaded 
+		onSoundLoaded 
 	
-	onCanvasLoaded
+		onCanvasLoaded
 	
-	onXhrError
+		onXhrError
 	
 */
 
@@ -36,24 +37,34 @@ var PcmImage = new Class({
 	Implements: [Options, Events],
 	
 	options: {
-		element: 	null,
-		uri: 		null,
-		strokeStyle: null, /* foreground colour */
-		background:  null,
-		lineWidth: 	1,
+		element: 	null,	/* conatiner to replace with canvas/image */
+		uri: 		null,	/* uri of sound */
+		strokeStyle: null,	/* foreground colour, may come from css */
+		background:  null,	/* background colour, may come from css */
+		lineWidth: 	1,		/* width of line used in graph */
+		step:		4,		/* process PCM in steps */
+		asimg:		false,	/* replace canvas with image, prevents playable */
+		playable:	true,	/* can the image be clicked to play? */
+		overlayclr:	'red',	/* overlaid when image played */
 		onXhrError: function(){ throw 'XHR Error getting '+this.options.uri },
 		onNoBufferError: function(){
 			throw 'Error decoding file data from '+self.options.uri;
-		},
-		step:		4,
-		asimg:		false,
+		}
 	},
 	
-	buffer: null,	/* Audio buffer object */
-	canvas:	null,	/* Canvas element added to options.element */
-	actx:	null,	/* Audio context object */
-    cctx:	null,	/* Canvas context object */
-    img:		null	,	/* May hold an img element */
+	buffer: 		null,	/* Audio buffer object */
+	canvas:		null,	/* Canvas element added to options.element */
+	actx:		null,	/* Audio context object */
+    cctx:		null,	/* Canvas context object */
+    img:			null	,	/* May hold an img element */
+    xFactor:		null,	/* amount to increment x when itterating through PCM by options.step */
+    audioReady:	false,	/* True when sound loaded */
+    playing:		false,	/* True when audio is playing */
+    pauseTimer:	null,	/* Used to togglePlay at end of sound */
+    renderTimer:	null,	/* Rendering the overlay during play */
+    nowSeconds:	0,		/* Current time ini sound, for pausing */
+    width:		0,		/* Size of visual element */
+    height:		0,		/* Size of visual element */
     
 	initialize: function( options, actx ){
 		var self = this;
@@ -62,10 +73,14 @@ var PcmImage = new Class({
 		this.element = (typeof this.options.element == 'string')?
 			document.id(this.options.element) 
 			: this.element = this.options.element;
+			
+		if (typeof this.options.playable == "string"
+		  && this.options.playable.match(/^(0|false|)$/)) this.options.playable = false;
 		
 		this.options.background = this.options.background 
 			|| this.element.getStyle('backgroundColor');	
 		this.options.strokeStyle = this.options.strokeStyle || this.element.getStyle('color');	
+		
 		if (actx)  
 			this.actx = actx;
 		else if (typeof AudioContext == "function") 
@@ -74,6 +89,16 @@ var PcmImage = new Class({
 			this.actx = new webkitAudioContext();
 		else throw('This browser does not support Web Audio Context');	
 
+		if (this.options.playable){
+			// Convert colors to standard format to allow names and shorthand hex:
+			var c = new Element('div',{styles:{color:this.options.overlayclr}}).getStyle('color')
+			this.overlay = {};
+			this.overlay.fg   = {};
+			this.overlay.fg.r = parseInt( '0x'+c.substr(1,2) );
+			this.overlay.fg.g = parseInt( '0x'+c.substr(3,2) );
+			this.overlay.fg.b = parseInt( '0x'+c.substr(5,2) );
+		}
+		
 		if (this.options.asimg 
 		 && this.options.asimg != 'false'
 	 	 && this.options.asimg != '0'
@@ -87,8 +112,8 @@ var PcmImage = new Class({
 	},
 
 	initCanvas: function(){
-		this.width  = this.options.width  || this.element.getSize().x;
-		this.height = this.options.height || this.element.getSize().y;
+		this.width  = this.options.width  || this.element.getComputedSize().totalWidth;
+		this.height = this.options.height || this.element.getComputedSize().totalHeight;
 		var attr = {
 			width: this.width,
 			height: this.height,
@@ -124,6 +149,7 @@ var PcmImage = new Class({
 					alert('error decoding file data: '+self.options.uri);
 				} else {
 					self.buffer = buffer;
+					self.audioReady = true;
 					self.fireEvent('soundLoaded');
 					self.render();
 				}
@@ -159,6 +185,7 @@ var PcmImage = new Class({
 	// the visually most appealing result is from allowing
 	// the canvas to sort it out, though this is much slower.
 	render: function(){
+		var self = this;
 		var channelValues = [];
 		var cd = [];
 		
@@ -166,17 +193,16 @@ var PcmImage = new Class({
 		this.cctx.strokeStyle = this.options.strokeStyle;
 		this.cctx.lineWidth = this.options.lineWidth;
 		this.cctx.moveTo( 0, this.height/2);
-
-		for (var c=0; c < this.buffer.numberOfChannels; c++){
-			cd[c] = this.buffer.getChannelData( c );
-		}
 		
-		var w = this.width / cd[0].length;
+		for (var c=0; c < this.buffer.numberOfChannels; c++)
+			cd[c] = this.buffer.getChannelData( c );
+
+		this.xFactor = this.width / cd[0].length;
 		
 		for (var i=0; i < cd[0].length; i += parseInt(this.options.step)){
 			for (var c=0; c < this.buffer.numberOfChannels; c++){
 				this.cctx.lineTo(
-					i * w, 
+					i * this.xFactor, 
 					cd[c][i] * this.height + (this.height/2)
 				);
 			}
@@ -202,8 +228,92 @@ var PcmImage = new Class({
 
 	 		this.img.src = this.canvas.toDataURL();
 			this.img.replaces( this.canvas );
+			
+			if (this.options.playable){
+				this.img.addEvent('click', function(){
+					self.togglePlay();	
+				});
+			}
+		}
+		
+		else if (this.options.playable){
+			this.canvas.addEvent('click', function(){
+				self.togglePlay();	
+			});
 		}
 	},
+	
+	togglePlay: function(){
+		if (this.playing) this.pause()
+		else this.play();
+	},
+	
+	_stop: function( pause ) {
+		if (!this.playing) return;
+		this.playing = false;
+		this.node.noteOff( 0 );
+		this.nowSeconds = pause? this.actx.currentTime : 0;
+		clearTimeout( this.pauseTimer );
+		clearTimeout( this.renderTimer );
+	},
+	
+	pause: function(){
+		this._stop(true);
+	},
+	
+	stop: function(){
+		this._stop(false);
+	},
+
+	play: function(){
+		if (!this.audioReady) return;
+		if (this.playing) return;
+		this.playing = true;
+		this.node = this.actx.createBufferSource();
+		this.node.buffer = this.buffer;
+		this.analyser = this.actx.createAnalyser();
+		this.node.connect( this.analyser );
+		this.analyser.connect( this.actx.destination );
+		this.node.noteGrainOn( 
+			0, 
+			this.nowSeconds, 
+			this.buffer.duration-(this.nowSeconds)
+		);
+		this.pauseTimer = this.stop.delay(
+			this.buffer.duration * 1000,
+			this
+		);
+		
+		this.overlayInterval = 50; // quater second update
+		var overlaySteps = ((this.buffer.duration*1000) / this.overlayInterval )-1;
+		this.overlay.inc = this.width / overlaySteps;
+		this.overlay.thisX = 0;
+		this.overlay.lastX = this.overlay.inc * -1;
+		this.renderTimer = this.overlayImg.periodical( this.overlayInterval, this );
+	},
+	
+	overlayImg: function(){
+		this.cctx.fillStyle = 'rgba( 0, 255, 255, 1)';
+		this.overlay.lastX = this.overlay.thisX;
+		this.overlay.thisX += this.overlay.inc;
+		var imgd = this.cctx.getImageData( 
+			this.overlay.lastX, 0,
+			this.overlay.thisX, this.canvas.height
+		);
+		
+		for (var i=0;i<imgd.data.length;i+=4){
+			var update = 0;
+			for (var p=0; p<3; p++){
+				if (imgd.data[i+p] > 0) update ++;
+			}
+			if (update==3) {
+				imgd.data[i]		= this.overlay.fg.r;
+				imgd.data[i+1]	= this.overlay.fg.g;
+				imgd.data[i+2]	= this.overlay.fg.b;
+			}
+		}
+		this.cctx.putImageData(imgd, this.overlay.lastX, 0);
+	}
 });
 
 PcmImage.parseDOM = function(){

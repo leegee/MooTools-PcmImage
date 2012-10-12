@@ -1,0 +1,250 @@
+<html lang='en'>
+<head>
+	<title>Lee Goddard .net - Just Another Boring Hompage - Beta</title>
+	<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+	<meta charset="utf-8">
+	
+	<meta name="author" content="Lee Goddard (http://www.leegoddard.net/)" />
+	<meta name="copyright" content="Copyright (c) 2011 Lee Goddard" />
+
+    	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/mootools/1.4/mootools-yui-compressed.js"></script>
+    	
+    	<script type='text/javascript' src='mootools-more-element-measure.js'></script>
+
+    	<script src="../Source/PcmImage.js"></script>
+
+	<script>
+		document.addEvent('domready', function(){
+			new PcmImage( {
+				element: document.id('soundtest-gradient'),
+				uri: 'pluck.wav',
+				clr: 'blue',
+				onCanvasLoaded: function(){ 
+					var gradient=this.cctx.createLinearGradient(0,0, 100, 0);
+					gradient.addColorStop("0","magenta");
+					gradient.addColorStop("0.5","blue");
+					gradient.addColorStop("1.0","red");
+					this.options.strokeStyle = gradient;
+				}
+			} );
+		});
+	</script>
+
+	<style>
+		.pcmimg {
+			background: orange;
+			color: white;
+			width:500px;
+			height:100px; 
+		}
+		
+		figure {
+			width: auto;
+			display: block;
+			border-bottom: 4pt dotted gray;
+			margin-bottom: 1em;
+			padding-bottom: 1em;
+		}
+		
+		figcaption {
+			margin-bottom: 1em;	
+		}
+		
+		#pcm {
+			display: block;
+			margin-top: 50pt
+		}
+		article {
+			padding: 1em
+		}
+	</style>
+
+</head>
+
+<body>
+
+	<header>
+		<h1>PcmImage for MooTools / HTML5</h1>
+	</header>
+
+	<section id='pcm' class='light'>
+		<article class='raised curled'><div>
+
+	<heading>
+		<h2>Soundfile PCM Wave Visualisation</h1>
+	</heading>
+
+	<p>
+		This code produces playable PCM waveform graphs from any
+		sound file supported by your WebAudio API-compatible browser.
+		That's not Mozilla.
+	</p>
+
+	<p>
+		There are two ways to use the code: directly from JavaScript,
+		or through HTML5 dataset attributes. In each case, the 
+		graphic is rendered on a canvas element, which is inserted
+		into an element that is specified by name, reference, or
+		in the DOM through specifiying a CSS class of <code>pcmimg</code>.
+	</p>
+
+	<p>
+		The source is straight-forward, commented,
+		and details events supported,
+		though these are unncessary for basic operation.
+	</p>
+	
+	<p>
+		As the sound is played, the graph changes colour to that
+		set in <code>(data-)overlayclr<code>.
+	</p>
+	
+	<p>
+		The ability to play a sound can be disabled 
+		by setting <code>(data-)playable<code> to a false value.
+	</p>
+
+	<p>
+		The <code>(data-)step</code> specifies the unit for stepping
+		through the PCM data, default is 8. Variations are illustrated
+		below.
+	</p>
+	
+	<p>
+		The <code>data-img</code> attribute, if set, causes
+		the default <code>canvas</code> element to be replaced
+		with an <code>img</code> element, which results in
+		the loss of the dynamic overlay.
+	</p>
+	
+<figure>
+	<figcaption>
+		<p>HTML default, style from class:</p>
+		<div><pre><code><xmp>
+<style>
+	.pcmimg {
+		background: orange;
+		color: white;
+		width:500px;
+		height:100px; 
+		border:1px solid black
+	}
+</style>
+<div class='pcmimg'
+	data-uri='pluck.wav'
+></div>
+		</xmp></code></pre></div>
+	</figcaption>
+
+	<div id='soundtest3'
+		data-uri='pluck.wav'
+		class='pcmimg'
+	></div>
+</figure>
+
+<figure>
+	<figcaption>HTML with <code>style</code> attribute</figcaption>
+		<div id='soundtest4'
+			data-uri='pluck.wav'
+			class='pcmimg'
+			style='width:500;height:500;background:steelblue'
+		></div>
+</figure>
+
+<figure>
+	<figcaption>HTML with <code>data-step=1</code></figcaption>
+		<div id='soundtest6'
+			class='pcmimg'
+			data-uri='pluck.wav'
+			data-step='1'
+		></div>
+</figure>
+
+<figure>
+	<figcaption>HTML with <code>data-step=32</code></figcaption>
+		<div id='soundtest6'
+			class='pcmimg'
+			data-uri='pluck.wav'
+			data-step='32'
+		></div>
+</figure>
+
+<figure>
+	<figcaption>HTML with <code>data-step=64</code></figcaption>
+		<div id='soundtest6'
+			class='pcmimg'
+			data-uri='pluck.wav'
+			data-step='64'
+		></div>
+</figure>
+
+<figure>
+	<figcaption>HTML with <code>data-step=256</code></figcaption>
+		<div id='soundtest6'
+			class='pcmimg'
+			data-uri='pluck.wav'
+			data-step='256'
+		></div>
+</figure>
+
+<figure>
+	<figcaption>HTML with <code>data-step=64</code> and a steelblue overlay, width of 1200px.</figcaption>
+		<div id='soundtest6'
+			style='width:1200px'
+			class='pcmimg'
+			data-uri='pluck.wav'
+			data-step='64'
+			data-overlayClr='steelblue'
+		></div>
+</figure>
+
+<figure>
+	<figcaption>HTML with <code>data-step=128</code>, <code>data-playable=false</code></figcaption>
+		<div id='soundtest6'
+			class='pcmimg'
+			data-uri='pluck.wav'
+			data-step='128'
+			data-playable=false
+		></div>
+</figure>
+
+<figure>
+	<figcaption>
+		HTML with <code>data-asImg=true</code>,
+		causing the <code>canvas</code> to be replaced by an <code>img</code>
+	</figcaption>
+		<div id='soundtest6'
+			class='pcmimg'
+			data-uri='pluck.wav'
+			data-step='128'
+			data-asImg='true'
+		></div>
+</figure>
+
+<figure>
+	<figcaption>
+	JavaScript with the <code>onCanvasLoaded</code> callback
+	used to define a gradient for the <code>strokeStyle</code> option.s
+	<div><pre><code>
+	var mess = new PcmImage( {
+		element: document.id('soundtest-gradient'),
+		uri: 'pluck.wav',
+		onCanvasLoaded: function(){ 
+			var gradient=this.cctx.createLinearGradient(0,0, this.canvas.width, 0);
+			gradient.addColorStop("0","blue");
+			gradient.addColorStop("0.5","magenta");
+			gradient.addColorStop("1.0","red");
+			this.options.strokeStyle = gradient;
+		}
+	} );</code>
+		</pre>
+	</figcaption>
+	<div id='soundtest-gradient' style='background:pink;width:500px;height:100px;'></div>
+</figure>
+
+</div></article>
+</section>
+	
+</body>
+</html>
+
