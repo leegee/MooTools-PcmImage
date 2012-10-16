@@ -316,8 +316,12 @@ var PcmImage = new Class({
 	}
 });
 
-PcmImage.parseDOM = function(){
-	$$('.pcmimg').each( function(el){
+/* Convert to PcmImages all DOM elements selected by 
+   the 'selector' supplied as the sole argument, which
+   defaults to '.pcmimg' */
+PcmImage.parseDOM = function( selector ){
+	selector = selector || '.pcmimg';
+	$$( selector ).each( function(el){
 		var opts = {
 			element:		 el,
 			uri:			 el.dataset.uri,

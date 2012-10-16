@@ -29,6 +29,8 @@ Once this library, and MooTools, have been included, a graph with default settin
 
 Any PcmImage option that can be supplied via the JavaScript API can be supplied via markup, by supplying the option as an attribute with the **data-** prefix. Such options are specified below.
 
+The automatic application of the substitution to the DOM is handled by **PcmImage.parseDOM(selector)**. The *selector* is, by default, **.pcmimg**.
+
 *JavaScript API*
 
 	document.addEvent('domready', function(){
