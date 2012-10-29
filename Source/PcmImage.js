@@ -13,6 +13,7 @@ requires:
 
 provides: [PcmImage]
 
+...
 */
 
 /*
