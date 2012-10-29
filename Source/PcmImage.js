@@ -40,9 +40,9 @@ var PcmImage = new Class({
 	options: {
 		element: 	null,	/* conatiner to replace with canvas/image */
 		uri: 		null,	/* uri of sound */
-		strokeStyle: null,	/* foreground colour, may come from css */
+		strokestyle: null,	/* foreground colour, may come from css */
 		background:  null,	/* background colour, may come from css */
-		lineWidth: 	1,		/* width of line used in graph */
+		linewidth: 	1,		/* width of line used in graph */
 		step:		4,		/* process PCM in steps */
 		asimg:		false,	/* replace canvas with image, prevents playable */
 		playable:	true,	/* can the image be clicked to play? */
@@ -80,7 +80,7 @@ var PcmImage = new Class({
 		
 		this.options.background = this.options.background 
 			|| this.element.getStyle('backgroundColor');	
-		this.options.strokeStyle = this.options.strokeStyle || this.element.getStyle('color');	
+		this.options.strokestyle = this.options.strokestyle || this.element.getStyle('color');	
 		
 		if (actx)  
 			this.actx = actx;
@@ -191,8 +191,8 @@ var PcmImage = new Class({
 		var cd = [];
 		
 		this.cctx.beginPath();
-		this.cctx.strokeStyle = this.options.strokeStyle;
-		this.cctx.lineWidth = this.options.lineWidth;
+		this.cctx.strokestyle = this.options.strokestyle;
+		this.cctx.linewidth = this.options.linewidth;
 		this.cctx.moveTo( 0, this.height/2);
 		
 		for (var c=0; c < this.buffer.numberOfChannels; c++)
