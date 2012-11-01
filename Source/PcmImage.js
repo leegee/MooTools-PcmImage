@@ -287,32 +287,38 @@ var PcmImage = new Class({
 		
 		this.overlayInterval = 50; // quater second update
 		var overlaySteps = ((this.buffer.duration*1000) / this.overlayInterval )-1;
-		this.overlay.inc = this.width / overlaySteps;
-		this.overlay.thisX = 0;
+		this.overlay.inc = parseInt( this.width / overlaySteps );
 		this.overlay.lastX = this.overlay.inc * -1;
-		this.renderTimer = this.overlayImg.periodical( this.overlayInterval, this );
+		this.overlay.thisX = 0;
+		this.renderTimer = this.overlayImg.periodical( 
+			this.overlayInterval,
+			this 
+		);
 	},
 	
 	overlayImg: function(){
-		this.cctx.fillStyle = 'rgba( 0, 255, 255, 1)';
+	//	this.cctx.fillStyle = 'rgba( 0, 255, 255, 1)';
 		this.overlay.lastX = this.overlay.thisX;
 		this.overlay.thisX += this.overlay.inc;
+		
 		var imgd = this.cctx.getImageData( 
 			this.overlay.lastX, 0,
 			this.overlay.thisX, this.canvas.height
 		);
 		
-		for (var i=0;i<imgd.data.length;i+=4){
-			var update = 0;
-			for (var p=0; p<3; p++){
-				if (imgd.data[i+p] > 0) update ++;
-			}
-			if (update==3) {
-				imgd.data[i]		= this.overlay.fg.r;
+		var found=0;
+		for (var i=0; i < imgd.data.length; i+=4){
+			// var update = 0;
+			// for (var p=0; p<3; p++){
+			// 	if (imgd.data[i+p] > 0) update ++;
+			// }
+			// if (update==3) {
+				imgd.data[i]	= this.overlay.fg.r;
 				imgd.data[i+1]	= this.overlay.fg.g;
 				imgd.data[i+2]	= this.overlay.fg.b;
-			}
+			// }
 		}
+
 		this.cctx.putImageData(imgd, this.overlay.lastX, 0);
 	}
 });
