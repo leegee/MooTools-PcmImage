@@ -74,10 +74,12 @@ var PcmImage = new Class({
 		this.element = (typeof this.options.element == 'string')?
 			document.id(this.options.element) 
 			: this.element = this.options.element;
+
+		if (!this.element) console.error(options);
 			
 		if (typeof this.options.playable == "string"
 		  && this.options.playable.match(/^(0|false|)$/)) this.options.playable = false;
-		
+
 		this.options.background = this.options.background 
 			|| this.element.getStyle('backgroundColor');	
 		this.options.strokestyle = this.options.strokestyle || this.element.getStyle('color');	
