@@ -298,9 +298,9 @@ var PcmImage = new Class({
 		
 		this.overlay.inc /= 1.8; // nearly
 		
-		console.log( this.width );
-		console.log( this.buffer.duration * 1000);
-		console.log( this.overlay.inc * this.overlayInterval);
+		//console.log( this.width );
+		//console.log( this.buffer.duration * 1000);
+		//console.log( this.overlay.inc * this.overlayInterval);
 		
 		this.renderTimer = this.overlayImg.periodical( 
 			this.overlayInterval,
