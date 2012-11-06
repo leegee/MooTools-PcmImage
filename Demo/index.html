@@ -247,11 +247,14 @@
 		element: document.id('soundtest-gradient'),
 		uri: 'pluck.wav',
 		onCanvasLoaded: function(){ 
-			var gradient=this.cctx.createLinearGradient(0,0, this.canvas.width, 0);
+			var gradient=this.cctx.createLinearGradient(
+				0,0, 
+				this.canvas.width, 0
+			);
 			gradient.addColorStop("0","blue");
 			gradient.addColorStop("0.5","magenta");
 			gradient.addColorStop("1.0","red");
-			this.options.strokeStyle = gradient;
+			this.options.strokestyle = gradient;
 		}
 	} );</code>
 		</pre>
