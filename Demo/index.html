@@ -214,6 +214,17 @@
 </figure>
 
 <figure>
+	<figcaption>HTML with an identical fore- and background colours, and a different overlay color.</figcaption>
+		<div id='soundtest6'
+			style='width:1200px;background:black;color:black'
+			class='pcmimg'
+			data-uri='pluck.wav'
+			data-step='64'
+			data-overlayclr='limegreen'
+		></div>
+</figure>
+
+<figure>
 	<figcaption>HTML with <code>data-step=128</code>, <code>data-playable=false</code></figcaption>
 		<div id='soundtest6'
 			class='pcmimg'
@@ -227,6 +238,7 @@
 	<figcaption>
 		HTML with <code>data-asImg=true</code>,
 		causing the <code>canvas</code> to be replaced by an <code>img</code>
+		so no overlay is rendered.
 	</figcaption>
 		<div id='soundtest6'
 			class='pcmimg'
