@@ -17,7 +17,7 @@ provides: [PcmImage]
 */
 
 /*
-	Version 0.2
+	Version 0.3
 
 	This code is copyright (C) 2012 Lee Goddard, Server-side Systems Ltd.
 	All Rights Reserved.
@@ -289,7 +289,7 @@ var PcmImage = new Class({
 		
 		this.overlayInterval = 50; // quater second update
 		var overlaySteps = ((this.buffer.duration*1000) / this.overlayInterval )-1;
-		this.overlay.inc = parseInt( this.width / overlaySteps );
+		this.overlay.inc = this.width / overlaySteps;
 		this.overlay.lastX = this.overlay.inc * -1;
 		this.overlay.thisX = 0;
 		this.renderTimer = this.overlayImg.periodical( 
