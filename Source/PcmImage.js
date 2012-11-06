@@ -296,11 +296,15 @@ var PcmImage = new Class({
 		this.overlay.lastX = this.overlay.inc * -1;
 		this.overlay.thisX = 0;
 		
-		this.overlay.inc /= 1.8; // nearly
+		// Why? What's wrong with my maths?
+		this.overlay.inc /= 1.666666666666; // nearly
 		
-		//console.log( this.width );
-		//console.log( this.buffer.duration * 1000);
-		//console.log( this.overlay.inc * this.overlayInterval);
+		/*
+		console.log( 'width '+this.width );
+		console.log( 'duration '+(this.buffer.duration * 1000));
+		console.log( this.overlay.inc +' * '+ this.overlayInterval +' = ');
+		console.log( this.overlayInterval * this.overlay.inc );
+		*/
 		
 		this.renderTimer = this.overlayImg.periodical( 
 			this.overlayInterval,
