@@ -101,7 +101,6 @@ var PcmImage = new Class({
 			this.overlay.fg.r = parseInt( '0x'+c.substr(1,2) );
 			this.overlay.fg.g = parseInt( '0x'+c.substr(3,2) );
 			this.overlay.fg.b = parseInt( '0x'+c.substr(5,2) );
-			console.log( this.overlay);
 		}
 		
 		if (this.options.asimg 
