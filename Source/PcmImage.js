@@ -83,7 +83,7 @@ var PcmImage = new Class({
 		this.options.background = this.options.background 
 			|| this.element.getStyle('backgroundColor');	
 		this.options.strokestyle = this.options.strokestyle || this.element.getStyle('color');	
-		
+
 		if (actx)  
 			this.actx = actx;
 		else if (typeof AudioContext == "function") 
@@ -94,12 +94,13 @@ var PcmImage = new Class({
 
 		if (this.options.playable){
 			// Convert colors to standard format to allow names and shorthand hex:
-			var c = new Element('div',{styles:{color:this.options.overlayclr}}).getStyle('color')
+			var c = new  Element('div',{styles:{color:this.options.overlayclr}}).getStyle('color')
 			this.overlay = {};
 			this.overlay.fg   = {};
 			this.overlay.fg.r = parseInt( '0x'+c.substr(1,2) );
 			this.overlay.fg.g = parseInt( '0x'+c.substr(3,2) );
 			this.overlay.fg.b = parseInt( '0x'+c.substr(5,2) );
+			console.log( this.overlay);
 		}
 		
 		if (this.options.asimg 
@@ -193,10 +194,12 @@ var PcmImage = new Class({
 		var cd = [];
 		
 		this.cctx.beginPath();
-		this.cctx.strokestyle = this.options.strokestyle;
-		this.cctx.linewidth = this.options.linewidth;
-		this.cctx.moveTo( 0, this.height/2);
+		this.cctx.strokeStyle = this.options.strokestyle;
+		this.cctx.lineWidth = this.options.linewidth;
 		
+		// XXX TODO UGLY HACK!
+		this.cctx.moveTo( 0, this.height/1.9);
+
 		for (var c=0; c < this.buffer.numberOfChannels; c++)
 			cd[c] = this.buffer.getChannelData( c );
 
@@ -288,10 +291,17 @@ var PcmImage = new Class({
 		);
 		
 		this.overlayInterval = 50; // quater second update
-		var overlaySteps = ((this.buffer.duration*1000) / this.overlayInterval )-1;
+		var overlaySteps = ((this.buffer.duration*1000) / this.overlayInterval );
 		this.overlay.inc = this.width / overlaySteps;
 		this.overlay.lastX = this.overlay.inc * -1;
 		this.overlay.thisX = 0;
+		
+		this.overlay.inc /= 1.8; // nearly
+		
+		console.log( this.width );
+		console.log( this.buffer.duration * 1000);
+		console.log( this.overlay.inc * this.overlayInterval);
+		
 		this.renderTimer = this.overlayImg.periodical( 
 			this.overlayInterval,
 			this 
