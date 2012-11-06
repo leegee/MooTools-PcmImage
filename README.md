@@ -41,7 +41,7 @@ The automatic application of the substitution to the DOM is handled by `PcmImage
 			playable:	 true,
 			overlayclr:	 'pink', // #abc #123456
 			asimg:       true,
-			strokestyle: 'black', /* foreground colour */
+			strokestyle: 'black', /* foreground colour, defaults to options.element's CSS 'color' */
 			background:  'lime',
 			linewidth:   1,
 			onXhrError:  function(){ throw 'XHR Error getting '+this.options.uri },
@@ -67,17 +67,20 @@ Options
 
 `asimg` (boolean): If true, the 'canvas' element on which the graph is drawn will be converted to a standard 'img' element, to allow the user to save the created image.
 
-`strokeStyle` (string): Supplied to the canvas context to set the foreground colour. Default is to use the value of th `color` style setting  of the `element`.
+`strokestyle` (string): Supplied to the canvas context to set the foreground colour. Default is to use the value of the `color` style setting  of the `element`.
 
 `background` (string): Supplied to the canvas context to set the background color. Defaul tis to use the `backgroundColor` style setting of the `element`.
 
-`lineWidth` (number): Supplied to the canvas context, defaults to 1.
+`linewidth` (number): Supplied to the canvas context, defaults to 1.
+
+Events
+------
 
 `onXhrError` (code reference): Fires if an error is encounted fetching the sound file from `uri`. 
 
 `onNoBufferError` (code reference): Fires is the data fetched from `uri` is invalid/non-existent.
 
-`onCanvasLoaded` (code reference): Called after the sound file has been loaded, and the canvas object created, but before rendering begins. Can be used to set rendering options, or to over-ride previously supplied, as in the 'gradient' example above.
+`onCanvasLoaded` (code reference): Called after the sound file has been loaded, and the canvas object created, but before rendering begins. Can be used to set rendering options, or to over-ride previously supplied, as in the 'gradient' example in `Demo/index.html`.
 
 Instantiation of the object creates the image.
 

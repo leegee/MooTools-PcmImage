@@ -50,7 +50,8 @@ var PcmImage = new Class({
 		onXhrError: function(){ throw 'XHR Error getting '+this.options.uri },
 		onNoBufferError: function(){
 			throw 'Error decoding file data from '+self.options.uri;
-		}
+		},
+		onCanvasLoaded: function(){}
 	},
 	
 	buffer: 		null,	/* Audio buffer object */

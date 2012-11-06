@@ -13,7 +13,7 @@
 
     	<script src="../Source/PcmImage.js"></script>
 
-	<script>/*
+	<script>
 		document.addEvent('domready', function(){
 			new PcmImage( {
 				element: document.id('soundtest-gradient'),
@@ -24,11 +24,11 @@
 					gradient.addColorStop("0","magenta");
 					gradient.addColorStop("0.5","blue");
 					gradient.addColorStop("1.0","red");
-					this.options.strokeStyle = gradient;
+					this.options.strokestyle = gradient;
+					console.log( this.options.strokestyle );
 				}
 			} );
 		});
-	*/
 	</script>
 
 	<style>
@@ -238,7 +238,6 @@
 </figure>
 
 
-<!--
 <figure>
 	<figcaption>
 	JavaScript with the <code>onCanvasLoaded</code> callback
@@ -259,7 +258,6 @@
 	</figcaption>
 	<div id='soundtest-gradient' style='background:pink;width:500px;height:100px;'></div>
 </figure>
--->
 
 </div></article>
 
