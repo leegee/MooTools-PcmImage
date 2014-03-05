@@ -17,7 +17,7 @@ provides: [PcmImage]
 */
 
 /*
-	Version 0.3
+	Version 0.4
 
 	This code is copyright (C) 2012 Lee Goddard, Server-side Systems Ltd.
 	All Rights Reserved.
@@ -257,7 +257,7 @@ var PcmImage = new Class({
 	_stop: function( pause ) {
 		if (!this.playing) return;
 		this.playing = false;
-		this.node.noteOff( 0 );
+		this.node.stop( 0 );
 		this.nowSeconds = pause? this.actx.currentTime : 0;
 		clearTimeout( this.pauseTimer );
 		clearTimeout( this.renderTimer );
@@ -280,7 +280,7 @@ var PcmImage = new Class({
 		this.analyser = this.actx.createAnalyser();
 		this.node.connect( this.analyser );
 		this.analyser.connect( this.actx.destination );
-		this.node.noteGrainOn( 
+		this.node.start( 
 			0, 
 			this.nowSeconds, 
 			this.buffer.duration-(this.nowSeconds)

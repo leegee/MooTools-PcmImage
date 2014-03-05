@@ -90,4 +90,7 @@ Screenshots
 
 ![Screenshot of supplied pluck.wav](https://raw.github.com/leegee/MooTools-PcmImage/master/Demo/pluck_600x200_steelblue_white.png)
 
+0.4 Updates
+-----------
+Updated to replace the `noteGrain*` methods with the new `start`/`stop` methods.
 
