@@ -47,6 +47,7 @@ var PcmImage = new Class({
 		asimg:		false,	/* replace canvas with image, prevents playable */
 		playable:	true,	/* can the image be clicked to play? */
 		overlayclr:	'red',	/* overlaid when image played */
+		fftSize: 	512,
 		onXhrError: function(){ throw 'XHR Error getting '+this.options.uri },
 		onNoBufferError: function(){
 			throw 'Error decoding file data from '+self.options.uri;
@@ -55,18 +56,18 @@ var PcmImage = new Class({
 	},
 	
 	buffer: 		null,	/* Audio buffer object */
-	canvas:		null,	/* Canvas element added to options.element */
-	actx:		null,	/* Audio context object */
-    cctx:		null,	/* Canvas context object */
-    img:			null	,	/* May hold an img element */
+	canvas:			null,	/* Canvas element added to options.element */
+	actx:			null,	/* Audio context object */
+    cctx:			null,	/* Canvas context object */
+    img:			null,	/* May hold an img element */
     xFactor:		null,	/* amount to increment x when itterating through PCM by options.step */
-    audioReady:	false,	/* True when sound loaded */
+    audioReady:		false,	/* True when sound loaded */
     playing:		false,	/* True when audio is playing */
-    pauseTimer:	null,	/* Used to togglePlay at end of sound */
+    pauseTimer:		null,	/* Used to togglePlay at end of sound */
     renderTimer:	null,	/* Rendering the overlay during play */
-    nowSeconds:	0,		/* Current time ini sound, for pausing */
-    width:		0,		/* Size of visual element */
-    height:		0,		/* Size of visual element */
+    nowSeconds:		0,		/* Current time ini sound, for pausing */
+    width:			0,		/* Size of visual element */
+    height:			0,		/* Size of visual element */
     
 	initialize: function( options, actx ){
 		var self = this;
@@ -206,12 +207,14 @@ var PcmImage = new Class({
 		this.xFactor = this.width / cd[0].length;
 		
 		for (var i=0; i < cd[0].length; i += parseInt(this.options.step)){
+			var v = 0;
 			for (var c=0; c < this.buffer.numberOfChannels; c++){
-				this.cctx.lineTo(
-					i * this.xFactor, 
-					cd[c][i] * this.height + (this.height/2)
-				);
+				v += cd[c][i];
 			}
+			this.cctx.lineTo(
+				i * this.xFactor, 
+				(v / this.buffer.numberOfChannels) * this.height + (this.height/2)
+			);
 		}
 		
 		this.cctx.stroke();
@@ -220,16 +223,16 @@ var PcmImage = new Class({
 		 && this.options.asimg != 'false'
 	 	 && this.options.asimg != '0'
 	 	){
-			//store the current globalCompositeOperation
+			// store the current globalCompositeOperation
 			var compositeOperation = this.cctx.globalCompositeOperation;
 			
-			//set to draw behind current content
+			// set to draw behind current content
 			this.cctx.globalCompositeOperation = "destination-over";
 			
-			//set background color
+			// set background color
 			this.cctx.fillStyle = this.options.background;
 			
-			//draw background / rect on entire canvas
+			// draw background / rect on entire canvas
 			this.cctx.fillRect(0,0, this.canvas.width, this.canvas.height);
 
 	 		this.img.src = this.canvas.toDataURL();
@@ -275,16 +278,15 @@ var PcmImage = new Class({
 		if (!this.audioReady) return;
 		if (this.playing) return;
 		this.playing = true;
-		this.node = this.actx.createBufferSource();
-		this.node.buffer = this.buffer;
-		this.analyser = this.actx.createAnalyser();
-		this.node.connect( this.analyser );
-		this.analyser.connect( this.actx.destination );
+
+		this.setNode();
+
+		// void start(optional double when = 0, optional double offset = 0, optional double duration);
 		this.node.start( 
 			0, 
-			this.nowSeconds, 
-			this.buffer.duration-(this.nowSeconds)
+			this.nowSeconds
 		);
+
 		this.pauseTimer = this.stop.delay(
 			this.buffer.duration * 1000,
 			this
@@ -336,6 +338,15 @@ var PcmImage = new Class({
 		}
 
 		this.cctx.putImageData(imgd, this.overlay.lastX, 0);
+	},
+
+	setNode: function(){
+		this.node = this.actx.createBufferSource();
+		this.node.buffer = this.buffer;
+		this.analyser = this.actx.createAnalyser();
+		this.analyser.fftSize = this.options.fftSize;
+		this.node.connect( this.analyser );
+		this.analyser.connect( this.actx.destination );
 	}
 });
 
