@@ -60,7 +60,6 @@ var PcmImage = new Class({
 	actx:			null,	/* Audio context object */
     cctx:			null,	/* Canvas context object */
     img:			null,	/* May hold an img element */
-    xFactor:		null,	/* amount to increment x when itterating through PCM by options.step */
     audioReady:		false,	/* True when sound loaded */
     playing:		false,	/* True when audio is playing */
     pauseTimer:		null,	/* Used to togglePlay at end of sound */
@@ -191,7 +190,6 @@ var PcmImage = new Class({
 	// the canvas to sort it out, though this is much slower.
 	render: function(){
 		var self = this;
-		var channelValues = [];
 		var cd = [];
 		
 		this.cctx.beginPath();
@@ -204,15 +202,17 @@ var PcmImage = new Class({
 		for (var c=0; c < this.buffer.numberOfChannels; c++)
 			cd[c] = this.buffer.getChannelData( c );
 
-		this.xFactor = this.width / cd[0].length;
-		
+		var xFactor = this.width / cd[0].length;
+
 		for (var i=0; i < cd[0].length; i += parseInt(this.options.step)){
 			var v = 0;
+
 			for (var c=0; c < this.buffer.numberOfChannels; c++){
 				v += cd[c][i];
 			}
+
 			this.cctx.lineTo(
-				i * this.xFactor, 
+				i * xFactor, 
 				(v / this.buffer.numberOfChannels) * this.height + (this.height/2)
 			);
 		}
@@ -343,10 +343,7 @@ var PcmImage = new Class({
 	setNode: function(){
 		this.node = this.actx.createBufferSource();
 		this.node.buffer = this.buffer;
-		this.analyser = this.actx.createAnalyser();
-		this.analyser.fftSize = this.options.fftSize;
-		this.node.connect( this.analyser );
-		this.analyser.connect( this.actx.destination );
+		this.node.connect( this.actx.destination );
 	}
 });
 
