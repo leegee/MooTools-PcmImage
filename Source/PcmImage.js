@@ -205,8 +205,6 @@ var PcmImage = new Class({
 		var self = this;
 		var cd = [];
 		
-		this.offlineNode();
-
 		this.cctx.beginPath();
 		this.cctx.strokeStyle = this.options.strokestyle;
 		this.cctx.lineWidth   = this.options.linewidth;
@@ -220,7 +218,6 @@ var PcmImage = new Class({
 
 		for (var i=0; i < cd[0].length; i += parseInt(this.options.step)){
 			var v = 0;
-
 			for (var c=0; c < this.buffer.numberOfChannels; c++){
 				v += cd[c][i];
 			}
@@ -232,6 +229,8 @@ var PcmImage = new Class({
 		}
 		
 		this.cctx.stroke();
+
+		this.colourFrequencies();
 	},
 	
 	togglePlay: function(){
@@ -284,15 +283,11 @@ var PcmImage = new Class({
 
 		if (this.playbackTime == 0) this.replaceCanvasImg();
 
-		// Render callback
+		// Render callback, cancelled as necessary by the callback
 		this.renderTimer = this.overlayImg.periodical( 
 			this.options.updateinterval,
 			this 
 		);
-
-	//	this.pauseTimer = this._stop(false).delay(
-	//		1000* (this.playbackTime + this.node.buffer.duration )
-	//	);
 
 		this.node.start( 
 			0, 
@@ -308,7 +303,7 @@ var PcmImage = new Class({
 	},
 
 
-	/* Overlays the `overlay.fg` onto the wave form. Override this. */
+	/* Overlays colour onto the wave form. Override this. */
 	overlayImg: function(){
 		this.overlay.lastX = 
 			(typeof this.overlay.thisX == 'undefined')?
@@ -390,7 +385,7 @@ var PcmImage = new Class({
 		}
 	},
 
-	offlineNode: function(){
+	colourFrequencies: function(){
 		var self = this;
 		if (this.buffer === null) throw 'setNode not caled, no buffer!';
 		
@@ -440,9 +435,10 @@ var PcmImage = new Class({
 		}
 	},
 
+	/* Stores the graph for repainting on repeat plays; makes the graph clickable */
 	graphComplete: function(){
 		var self = this;
-		
+
 		this.storeCanvasImg();
 
 		if (this.options.asimg ){
