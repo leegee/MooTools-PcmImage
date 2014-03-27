@@ -232,35 +232,6 @@ var PcmImage = new Class({
 		}
 		
 		this.cctx.stroke();
-		
-		if (this.options.asimg ){
-			// store the current globalCompositeOperation
-			var compositeOperation = this.cctx.globalCompositeOperation;
-			
-			// Set to draw behind current content
-			this.cctx.globalCompositeOperation = "destination-over";
-			
-			this.cctx.fillStyle = this.options.background;
-			this.cctx.fillRect(0,0, this.canvas.width, this.canvas.height);
-
-	 		this.img.src = this.canvas.toDataURL();
-			this.img.replaces( this.canvas );
-			
-			// Restore the previous state
-			this.cctx.globalCompositeOperation = compositeOperation;
-
-			if (this.options.playable){
-				this.img.addEvent('click', function(){
-					self.togglePlay();	
-				});
-			}
-		}
-		
-		else if (this.options.playable){
-			this.canvas.addEvent('click', function(){
-				self.togglePlay();	
-			});
-		}
 	},
 	
 	togglePlay: function(){
@@ -440,7 +411,7 @@ var PcmImage = new Class({
 
 		// When rendered, store the canvas for replays
 		this.octx.oncomplete = function(){
-			self.storeCanvasImg();
+			self.graphComplete();
 		}
         this.offline_processor.onaudioprocess = function(e){
         	self.offline_overlayImg( e )
@@ -466,6 +437,41 @@ var PcmImage = new Class({
 				this.options.saturation + '%,' +
 				this.options.lightness	+ '%'
 			);
+		}
+	},
+
+	graphComplete: function(){
+		var self = this;
+		
+		this.storeCanvasImg();
+
+		if (this.options.asimg ){
+			// store the current globalCompositeOperation
+			var compositeOperation = this.cctx.globalCompositeOperation;
+			
+			// Set to draw behind current content
+			this.cctx.globalCompositeOperation = "destination-over";
+			
+			this.cctx.fillStyle = this.options.background;
+			this.cctx.fillRect(0,0, this.canvas.width, this.canvas.height);
+
+	 		this.img.src = this.canvas.toDataURL();
+			this.img.replaces( this.canvas );
+			
+			// Restore the previous state
+			this.cctx.globalCompositeOperation = compositeOperation;
+
+			if (this.options.playable){
+				this.img.addEvent('click', function(){
+					self.togglePlay();	
+				});
+			}
+		}
+		
+		else if (this.options.playable){
+			this.canvas.addEvent('click', function(){
+				self.togglePlay();	
+			});
 		}
 	},
 
