@@ -32,6 +32,10 @@ provides: [PcmImage]
 	
 		onXhrError
 	
+	Consider overriding `overlayImg`, which is called 
+	every `options.updateInterval` milliseconds when the
+	track is playing.
+
 */
 
 var PcmImage = new Class({
@@ -46,9 +50,11 @@ var PcmImage = new Class({
 		step:			4,		/* Graph PCM in steps */
 		asimg:			false,	/* replace canvas with image, prevents playable */
 		playable:		true,	/* can the image be clicked to play? */
-		overlayclr:		'red',	/* overlaid when image played */
+		overlayclr:		'red',	/* Any valid CSS colour (hex, rgb, etc). Overlaid when image played */
 		updateInterval: 60/40, 	/* Graph overlay update frequency in milliseconds */
-		fftSize: 		1024,	/* FFT bin size */
+		fftSize: 		1024,	/* FFT bin size. (Small=slow and detailed.) An unsigned long value representing the size of the Fast Fourier Transform to be used to determine the frequency domain. It must be a non-zero power of 2 in the range between 512 and 2048, included; its default value is 2048. If not a power of 2, or outside the specified range, the exception INDEX_SIZE_ERR is thrown. https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode */
+		saturation: 	50, 	/* Waveform colour (%) */
+		lightness: 		50, 	/* waveform colour (%) */
 		onSoundLoaded: function(){},
 		onXhrError: function(){ throw 'XHR Error getting '+this.options.uri },
 		onNoBufferError: function(){
@@ -67,11 +73,11 @@ var PcmImage = new Class({
     playing:		false,	/* True when audio is playing */
     renderTimer:	null,	/* Rendering the overlay during play */
     pauseTimer: 	null,	/* Stops the renderTimer */
-    playbackTime:		0,	/* Current time ini sound, for pausing */
+    playbackTime:	0,		/* Current time ini sound, for pausing */
     width:			0,		/* Size of visual element */
     height:			0,		/* Size of visual element */
     overlay: 		{},		/* Private overlay details. */
-    freq_rgb: 		[],		/* Colours for frequencies */
+    freqClrs: 		[],		/* Waveform frequency colour */
     canvasImgData: 	null,	/* Stores frequency-painted canvas ImageData for replay */ 
 
 	initialize: function( options ){
@@ -332,6 +338,7 @@ var PcmImage = new Class({
 	},
 
 
+	/* Overlays the `overlay.fg` onto the wave form. Override this. */
 	overlayImg: function(){
 		this.overlay.lastX = 
 			(typeof this.overlay.thisX == 'undefined')?
@@ -396,32 +403,16 @@ var PcmImage = new Class({
 		if (parseInt( toX ) > parseInt(fromX)){	
 		    var data =  new Uint8Array( this.offline_analyser.frequencyBinCount );
 		    this.offline_analyser.getByteFrequencyData(data);
+		    // Array.reduce :(
 		    var values = 0;
 		    for (var j=0; j < data.length; j++) {
 		        values += data[j];
 		    }
 		    var average = parseInt( values / data.length );
-			
-			// console.log(e.playbackTime, ': av=', average, ' from/to=', fromX, toX );
-
-			/*
-			var imgd = this.cctx.getImageData( 
-				fromX, 0,
-				toX, this.canvas.height
-			);
-			// console.log( this.freq_rgb[ average ], average)
-			for (var i=0; i < imgd.data.length; i+=4){
-				imgd.data[i]	= this.freq_rgb[ average ][0]; // this.overlay.fg.r;
-				imgd.data[i+1]	= this.freq_rgb[ average ][1]; // this.overlay.fg.g;
-				imgd.data[i+2]	= this.freq_rgb[ average ][2]; // this.overlay.fg.b;
-				// imgd.data[i+3]	= 1;
-			}
-			this.cctx.putImageData(imgd, fromX, 0);
-			*/
-			
+						
 			this.cctx.globalAlpha = 255;
 			this.cctx.globalCompositeOperation = 'source-atop';
-			this.cctx.fillStyle = 'rgb(' + this.freq_rgb[ average ].join(',')+')';
+			this.cctx.fillStyle = 'hsl(' + this.freqClrs[ average ]+')';
 			this.cctx.fillRect(
 				fromX, 0,
 				toX, this.canvas.height
@@ -468,26 +459,15 @@ var PcmImage = new Class({
 	},
 
 	setClrs: function(){
-		// garish
-		var clrs = [
-			[ 255, 0, 0 ],
-			[ 255, 127, 0 ],
-			[ 255, 255, 0 ],
-			[ 0, 255, 0 ],
-			[ 0, 0, 255 ],
-			[ 75, 0, 130 ],
-			[ 143, 0, 255 ]
-		];
-
-		var range = parseInt( 127/(clrs.length-1) );
-
-		var clr = 0;
-		for (var i=0; i < 127; i += range){
-			for (var j=0; j <= range; j++){
-				this.freq_rgb[i+j] = clrs[clr];
-			}
-			clr ++;
-		}		
+		for (var i=0; i<=255; i++){
+			this.freqClrs.push( 
+				parseInt( 
+					1 + (i * 254 / 360)
+				) + ',' +
+				this.options.saturation + '%,' +
+				this.options.lightness	+ '%'
+			);
+		}
 	},
 
 	storeCanvasImg: function(){
