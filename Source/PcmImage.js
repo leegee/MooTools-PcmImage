@@ -33,7 +33,7 @@ provides: [PcmImage]
 		onXhrError
 	
 	Consider overriding `overlayImg`, which is called 
-	every `options.updateInterval` milliseconds when the
+	every `options.updateinterval` milliseconds when the
 	track is playing.
 
 */
@@ -51,8 +51,8 @@ var PcmImage = new Class({
 		asimg:			false,	/* replace canvas with image, prevents playable */
 		playable:		true,	/* can the image be clicked to play? */
 		overlayclr:		'red',	/* Any valid CSS colour (hex, rgb, etc). Overlaid when image played */
-		updateInterval: 60/40, 	/* Graph overlay update frequency in milliseconds */
-		fftSize: 		1024,	/* FFT bin size. (Small=slow and detailed.) An unsigned long value representing the size of the Fast Fourier Transform to be used to determine the frequency domain. It must be a non-zero power of 2 in the range between 512 and 2048, included; its default value is 2048. If not a power of 2, or outside the specified range, the exception INDEX_SIZE_ERR is thrown. https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode */
+		updateinterval: 60/40, 	/* Graph overlay update frequency in milliseconds */
+		fftsize: 		1024,	/* FFT bin size. (Small=slow and detailed.) An unsigned long value representing the size of the Fast Fourier Transform to be used to determine the frequency domain. It must be a non-zero power of 2 in the range between 512 and 2048, included; its default value is 2048. If not a power of 2, or outside the specified range, the exception INDEX_SIZE_ERR is thrown. https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode */
 		saturation: 	50, 	/* Waveform colour (%) */
 		lightness: 		50, 	/* waveform colour (%) */
 		onSoundLoaded: function(){},
@@ -103,8 +103,6 @@ var PcmImage = new Class({
 			|| this.element.getStyle('backgroundColor') || 'transparent';
 		this.options.strokestyle = this.options.strokestyle || this.element.getStyle('color');	
 
-		this.setClrs();
-
 		if (this.options.playable){
 			// Convert colors to standard format to allow names and shorthand hex:
 			var c = new  Element('div',{styles:{color:this.options.overlayclr}}).getStyle('color')
@@ -119,6 +117,7 @@ var PcmImage = new Class({
 	 		this.options.asimg = true;
 	 	}
 		
+		this.setClrs();
 		this.initGraphics();
 		this.fireEvent('canvasLoaded');
 		this.load();
@@ -316,7 +315,7 @@ var PcmImage = new Class({
 
 		// Render callback
 		this.renderTimer = this.overlayImg.periodical( 
-			this.options.updateInterval,
+			this.options.updateinterval,
 			this 
 		);
 
@@ -429,10 +428,10 @@ var PcmImage = new Class({
 		this.offline_node = this.octx.createBufferSource();
 
 		this.offline_analyser = this.octx.createAnalyser();
-		this.offline_analyser.fftSize = this.options.fftSize;
+		this.offline_analyser.fftsize = this.options.fftsize;
 		this.offline_analyser.smoothingTimeConstant = .9;
 
-		this.offline_processor = this.octx.createScriptProcessor( this.options.fftSize, this.buffer.numberOfChannels, this.buffer.numberOfChannels);
+		this.offline_processor = this.octx.createScriptProcessor( this.options.fftsize, this.buffer.numberOfChannels, this.buffer.numberOfChannels);
 		this.offline_processor.connect( this.octx.destination );
 
 		this.offline_analyser.connect( this.offline_processor );
