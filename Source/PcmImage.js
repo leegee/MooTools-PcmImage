@@ -67,11 +67,12 @@ var PcmImage = new Class({
     playing:		false,	/* True when audio is playing */
     renderTimer:	null,	/* Rendering the overlay during play */
     pauseTimer: 	null,	/* Stops the renderTimer */
-    playbackTime:		0,		/* Current time ini sound, for pausing */
+    playbackTime:		0,	/* Current time ini sound, for pausing */
     width:			0,		/* Size of visual element */
     height:			0,		/* Size of visual element */
-    overlay: 		{},
-    freq_rgb: 		[],
+    overlay: 		{},		/* Private overlay details. */
+    freq_rgb: 		[],		/* Colours for frequencies */
+    canvasImgData: 	null,	/* Stores frequency-painted canvas ImageData for replay */ 
 
 	initialize: function( options ){
 		var self = this;
@@ -105,6 +106,7 @@ var PcmImage = new Class({
 			this.overlay.fg.r = parseInt( '0x'+c.substr(1,2) );
 			this.overlay.fg.g = parseInt( '0x'+c.substr(3,2) );
 			this.overlay.fg.b = parseInt( '0x'+c.substr(5,2) );
+			this.overlay.fg.all = c; 
 		}
 		
 		if (this.options.asimg && this.options.asimg.match(/^(0|false|)$/)) {
@@ -189,9 +191,11 @@ var PcmImage = new Class({
 
 	},
 
-	// Having tried all sorts of averaging and resampling,
-	// the visually most appealing result is from allowing
-	// the canvas to sort it out, though this is much slower.
+	/*	Render a template of the waveform for later colour-overlay.
+		Having tried all sorts of averaging and resampling,
+		the visually most appealing result is from allowing
+		the canvas to sort it out, though this is much slower.
+	*/
 	render: function(){
 		var self = this;
 		var cd = [];
@@ -299,8 +303,10 @@ var PcmImage = new Class({
 		// Reset if done:
 		if (this.playbackTime > this.node.buffer.duration){
 			this.playbackTime = 0;
-			this.render()
+			this.replaceCanvasImg();
 		}
+
+		if (this.playbackTime == 0) this.replaceCanvasImg();
 
 		// Render callback
 		this.renderTimer = this.overlayImg.periodical( 
@@ -344,11 +350,9 @@ var PcmImage = new Class({
 			return;
 		}
 
-		// this.cctx.globalAlpha = .5;
-		// this.cctx.globalCompositeOperation = 'xor';
-
 		// If we error, cancel playback/rendering.
 		try {
+			/*
 			var imgd = this.cctx.getImageData( 
 				this.overlay.lastX, 0,
 				(this.overlay.thisX - this.overlay.lastX), this.canvas.height
@@ -360,8 +364,16 @@ var PcmImage = new Class({
 				imgd.data[i+2]	= this.overlay.fg.b;
 				// imgd.data[i+3]  = 255; // imgd.data[i+3];
 			}
-
 			this.cctx.putImageData(imgd, this.overlay.lastX, 0);
+			*/
+
+			this.cctx.globalAlpha = 255;
+			this.cctx.globalCompositeOperation = 'source-atop';
+		    this.cctx.fillStyle = this.overlay.fg.all;
+		    this.cctx.fillRect(
+				this.overlay.lastX, 0,
+				(this.overlay.thisX - this.overlay.lastX), this.canvas.height
+		    );
 		}
 		catch (e) {
 			this.stop();
@@ -389,11 +401,10 @@ var PcmImage = new Class({
 		        values += data[j];
 		    }
 		    var average = parseInt( values / data.length );
-			// console.log(e.playbackTime, ': ', average, ' @ ', fromX, toX );
+			
+			// console.log(e.playbackTime, ': av=', average, ' from/to=', fromX, toX );
 
-			// this.cctx.globalAlpha = .5;
-			// this.cctx.globalCompositeOperation = 'xor';
-
+			/*
 			var imgd = this.cctx.getImageData( 
 				fromX, 0,
 				toX, this.canvas.height
@@ -405,8 +416,16 @@ var PcmImage = new Class({
 				imgd.data[i+2]	= this.freq_rgb[ average ][2]; // this.overlay.fg.b;
 				// imgd.data[i+3]	= 1;
 			}
-
 			this.cctx.putImageData(imgd, fromX, 0);
+			*/
+			
+			this.cctx.globalAlpha = 255;
+			this.cctx.globalCompositeOperation = 'source-atop';
+			this.cctx.fillStyle = 'rgb(' + this.freq_rgb[ average ].join(',')+')';
+			this.cctx.fillRect(
+				fromX, 0,
+				toX, this.canvas.height
+			);
 		}
 	},
 
@@ -429,6 +448,10 @@ var PcmImage = new Class({
 
 		this.offline_node.connect( this.offline_analyser );
 
+		// When rendered, store the canvas for replays
+		this.octx.oncomplete = function(){
+			self.storeCanvasImg();
+		}
         this.offline_processor.onaudioprocess = function(e){
         	self.offline_overlayImg( e )
         }
@@ -465,7 +488,20 @@ var PcmImage = new Class({
 			}
 			clr ++;
 		}		
+	},
+
+	storeCanvasImg: function(){
+		this.canvasImgData = this.cctx.getImageData( 
+			0, 0,
+			this.canvas.width, this.canvas.height
+		);
+	},
+
+	replaceCanvasImg: function(){
+		this.canvas.width = this.canvas.width;
+		this.cctx.putImageData( this.canvasImgData, 0, 0);
 	}
+
 });
 
 
