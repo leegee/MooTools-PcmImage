@@ -79,6 +79,7 @@ var PcmImage = new Class({
     overlay: 		{},		/* Private overlay details. */
     freqClrs: 		[],		/* Waveform frequency colour */
     canvasImgData: 	null,	/* Stores frequency-painted canvas ImageData for replay */ 
+    offlineRenderStarted: false, /* Have to cover 0 */
 
 	initialize: function( options ){
 		var self = this;
@@ -362,10 +363,15 @@ var PcmImage = new Class({
 			//console.log( 'width = ', this.width, ', total px = ', this.overlay.pxPerSec * this.buffer.duration);
 		}
 		
-		var fromX =  e.playbackTime * this.overlay.pxPerSec;
+		var fromX = e.playbackTime * this.overlay.pxPerSec;
 		var toX   =  fromX + ( e.inputBuffer.duration * this.overlay.pxPerSec);
 		
-		if (parseInt( toX ) > parseInt(fromX)){	
+		if (parseInt( toX ) > parseInt(fromX)){
+			if (! this.offlineRenderStarted){
+				this.offlineRenderStarted = true;
+				fromX = 0;
+			}
+
 		    var data =  new Uint8Array( this.offline_analyser.frequencyBinCount );
 		    this.offline_analyser.getByteFrequencyData(data);
 		    // Array.reduce :(
