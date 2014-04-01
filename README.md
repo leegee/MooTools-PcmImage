@@ -37,9 +37,10 @@ The automatic application of the substitution to the DOM is handled by `PcmImage
 		new PcmImage( {
 			element:     document.id('soundtest-gradient'),
 			uri:         'pluck.wav',
+			pauseorjump: 'pause', // Or jump
 			step:        256,
 			playable:	 true,
-			overlayclr:	 'pink', // #abc #123456
+			overlayclr:	 'pink', // #abc #123456 red rgba(129,129,0,127)
 			asimg:       true,
 			strokestyle: 'black', /* foreground colour, defaults to options.element's CSS 'color' */
 			background:  'lime',
@@ -64,6 +65,8 @@ Options
 `element` (string): 'id' of, or reference to, a DOM element to hold the graph.
 
 `uri` (string): Address of the sound file to process.
+
+`pauseorjump` (`pause` or `jump`): When graph is clicked, the sound will pause, or jump to the clicked time.
 
 `asimg` (boolean): If true, the 'canvas' element on which the graph is drawn will be converted to a standard 'img' element, to allow the user to save the created image.
 
@@ -98,13 +101,22 @@ Events
 
 `onCanvasLoaded` (code reference): Called after the sound file has been loaded, and the canvas object created, but before rendering begins. Can be used to set rendering options, or to over-ride previously supplied, as in the 'gradient' example in `Demo/index.html`.
 
-Instantiation of the object creates the image.
-
+`onRendered` (code reference): Called after the rendering of the waveform. Default behaviour is to call
+`colourFrequencies()` to colour the waveform based on frequency analysis, but that can be slow for large files,
+on slower machines, and unreliable on some clients.
 
 Screenshots
 -----------
 
 ![Screenshot of supplied pluck.wav](https://raw.github.com/leegee/MooTools-PcmImage/master/Demo/pluck_600x200_steelblue_white.png)
+
+0.6 Updates
+-----------
+Make frequency colouring optional.
+
+0.5 Updates
+-----------
+Frequncy colouring.
 
 0.4 Updates
 -----------
