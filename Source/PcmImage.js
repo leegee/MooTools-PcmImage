@@ -48,13 +48,14 @@ var PcmImage = new Class({
 		background:  	null,	/* background colour, may come from css if possible */
 		linewidth: 		1,		/* width of line used in graph */
 		step:			4,		/* Graph PCM in steps */
-		asimg:			false,	/* replace canvas with image, prevents playable */
-		playable:		true,	/* can the image be clicked to play? */
+		asimg:			false,	/* Replace canvas with image, prevents `pauseorjump` and `overlayclr` */
+		pauseorjump: 	'jump',/* Either `pause` or `jump` (to a time) when waveform is clicked. */
+		playable:		true,	/* Can the waveform be clicked to play? */
 		overlayclr:		'red',	/* Any valid CSS colour (hex, rgb, etc). Overlaid when image played */
 		updateinterval: 60/40, 	/* Graph overlay update frequency in milliseconds */
-		fftsize: 		1024,	/* FFT bin size. (Small=slow and detailed.) An unsigned long value representing the size of the Fast Fourier Transform to be used to determine the frequency domain. It must be a non-zero power of 2 in the range between 512 and 2048, included; its default value is 2048. If not a power of 2, or outside the specified range, the exception INDEX_SIZE_ERR is thrown. https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode */
-		saturation: 	50, 	/* Waveform colour (%) */
-		lightness: 		50, 	/* waveform colour (%) */
+		fftsize: 		1024,	/* FFT bin size for waveform frequency analysis. (Small=slow and detailed.) An unsigned long value representing the size of the Fast Fourier Transform to be used to determine the frequency domain. It must be a non-zero power of 2 in the range between 512 and 2048, included; its default value is 2048. If not a power of 2, or outside the specified range, the exception INDEX_SIZE_ERR is thrown. https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode */
+		saturation: 	50, 	/* Waveform frequency colour (%) */
+		lightness: 		50, 	/* waveform frequency colour (%) */
 		onSoundLoaded: function(){},
 		onXhrError: function(){ throw 'XHR Error getting '+this.options.uri },
 		onNoBufferError: function(){
@@ -83,6 +84,10 @@ var PcmImage = new Class({
     freqClrs: 		[],		/* Waveform frequency colour */
     canvasImgData: 	null,	/* Stores frequency-painted canvas ImageData for replay */ 
     offlineRenderStarted: false, /* Have to cover 0 */
+    position: 		{		/* When `options.pauseorjump` is jump, used to hold position of the canvas */
+    	x: null, 
+    	y: null
+    },
 
 	initialize: function( options ){
 		var self = this;
@@ -102,6 +107,9 @@ var PcmImage = new Class({
 
 		if (typeof this.options.playable == "string"
 		  && this.options.playable.match(/^(0|false|)$/)) this.options.playable = false;
+
+		if (! this.options.pauseorjump.match(/jump/i))
+			this.options.pauseorjump = 'pause';
 
 		this.options.background = this.options.background 
 			|| this.element.getStyle('backgroundColor') || 'transparent';
@@ -241,9 +249,26 @@ var PcmImage = new Class({
 		self.fireEvent('rendered');
 	},
 	
-	togglePlay: function(){
-		if (this.playing) this.pause()
-		else this.play();
+	clickedGraphic: function(e){
+		if (this.options.pauseorjump == 'jump'){
+			console.log(this.playing)
+			if (this.playing){
+				// Store element position (it may have moved since last play)
+				this.position = this.element.getPosition();
+				this._stop(false);
+				this.play(
+					(e.page.x - this.position.x) / this.overlay.pxPerSec
+				);
+			} 
+			else {
+				this.play();
+			}
+		}
+
+		else {
+			if (this.playing) this.pause()
+			else this.play();
+		}
 	},
 	
 	pause: function(){
@@ -276,12 +301,20 @@ var PcmImage = new Class({
 		return this.playbackTime + this.actx.currentTime - this._actxStartTime;
 	},
 
-	play: function(){
+	play: function( startAt ){
 		if (!this.audioReady) return;
 		if (this.playing) return;
 		this.playing = true;
 
 		this.setNode();
+
+		if (typeof startAt !== 'undefined'){
+			this.playbackTime = startAt;
+			// Rerender canvas:
+			this.overlay.thisX = 1;
+			this.replaceCanvasImg();
+			this.overlayImg()
+		}
 
 		// Reset if done:
 		if (this.playbackTime > this.node.buffer.duration){
@@ -314,7 +347,7 @@ var PcmImage = new Class({
 	/* Overlays colour onto the wave form. Override this. */
 	overlayImg: function(){
 		this.overlay.lastX = 
-			(typeof this.overlay.thisX == 'undefined')?
+			(typeof this.overlay.thisX === 'undefined')?
 			0 : this.overlay.thisX-1;
 		
 		this.overlay.thisX = this.now() * this.overlay.pxPerSec;
@@ -471,15 +504,15 @@ var PcmImage = new Class({
 			this.cctx.globalCompositeOperation = compositeOperation;
 
 			if (this.options.playable){
-				this.img.addEvent('click', function(){
-					self.togglePlay();	
+				this.img.addEvent('click', function(e){
+					self.clickedGraphic(e);	
 				});
 			}
 		}
 		
 		else if (this.options.playable){
-			this.canvas.addEvent('click', function(){
-				self.togglePlay();	
+			this.canvas.addEvent('click', function(e){
+				self.clickedGraphic(e);	
 			});
 		}
 	},
