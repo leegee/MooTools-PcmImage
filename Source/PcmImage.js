@@ -51,7 +51,7 @@ var PcmImage = new Class({
 		asimg:			false,	/* Replace canvas with image, prevents `pauseorjump` and `overlayclr` */
 		pauseorjump: 	'jump',/* Either `pause` or `jump` (to a time) when waveform is clicked. */
 		playable:		true,	/* Can the waveform be clicked to play? */
-		overlayclr:		'red',	/* Any valid CSS colour (hex, rgb, etc). Overlaid when image played */
+		overlayclr:		'rgba(200,0,0,100)',	/* Any valid CSS colour (hex, rgb, etc). Overlaid when image played */
 		updateinterval: 60/40, 	/* Graph overlay update frequency in milliseconds */
 		fftsize: 		1024,	/* FFT bin size for waveform frequency analysis. (Small=slow and detailed.) An unsigned long value representing the size of the Fast Fourier Transform to be used to determine the frequency domain. It must be a non-zero power of 2 in the range between 512 and 2048, included; its default value is 2048. If not a power of 2, or outside the specified range, the exception INDEX_SIZE_ERR is thrown. https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode */
 		saturation: 	50, 	/* Waveform frequency colour (%) */
@@ -313,7 +313,7 @@ var PcmImage = new Class({
 			// Rerender canvas:
 			this.overlay.thisX = 1;
 			this.replaceCanvasImg();
-			this.overlayImg()
+			//this.overlayImg();
 		}
 
 		// Reset if done:
