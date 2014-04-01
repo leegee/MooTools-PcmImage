@@ -60,7 +60,10 @@ var PcmImage = new Class({
 		onNoBufferError: function(){
 			throw 'Error decoding file data from '+self.options.uri;
 		},
-		onCanvasLoaded: function(){}
+		onCanvasLoaded: function(){},
+		onRendered: function(){	/* Fired when the waveform has been rendered. Default behaviour is to call `colourFrequencies()` to colour the waveform based on FFT frequency analysis. */
+			this.colourFrequencies();
+		}
 	},
 	
 	buffer: 		null,	/* Audio buffer object */
@@ -231,7 +234,7 @@ var PcmImage = new Class({
 		
 		this.cctx.stroke();
 
-		this.colourFrequencies();
+		self.fireEvent('rendered');
 	},
 	
 	togglePlay: function(){
