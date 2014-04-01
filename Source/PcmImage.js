@@ -117,8 +117,12 @@ var PcmImage = new Class({
 			this.overlay.fg.all = c; 
 		}
 		
-		if (this.options.asimg && this.options.asimg.match(/^(0|false|)$/)) {
+		if (this.options.asimg && this.options.asimg.match(/^(1|true|asimg|)$/i)) {
 	 		this.options.asimg = true;
+	 	} 
+	 	// Allow negative markup
+	 	else {
+	 		this.options.asimg = false;
 	 	}
 		
 		this.setClrs();
@@ -343,7 +347,7 @@ var PcmImage = new Class({
 			this.cctx.putImageData(imgd, this.overlay.lastX, 0);
 			*/
 
-			this.cctx.globalAlpha = 255;
+			// this.cctx.globalAlpha = 255;
 			this.cctx.globalCompositeOperation = 'source-atop';
 		    this.cctx.fillStyle = this.overlay.fg.all;
 		    this.cctx.fillRect(
