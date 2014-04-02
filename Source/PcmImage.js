@@ -64,6 +64,7 @@ var PcmImage = new Class({
 		fftsize: 		1024,	/* FFT bin size for waveform frequency analysis. (Small=slow and detailed.) An unsigned long value representing the size of the Fast Fourier Transform to be used to determine the frequency domain. It must be a non-zero power of 2 in the range between 512 and 2048, included; its default value is 2048. If not a power of 2, or outside the specified range, the exception INDEX_SIZE_ERR is thrown. https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode */
 		saturation: 	50, 	/* Waveform frequency colour (%) */
 		lightness: 		50, 	/* waveform frequency colour (%) */
+		frequencyby: 	'average', /* `average` or `max` - calculate frequency colour by the average frequency in the FFT bin, or that with the greatest amplitude. */
 		onSoundLoaded: function(){},
 		onXhrError: function(){ throw 'XHR Error getting '+this.options.uri },
 		onNoBufferError: function(){
@@ -431,15 +432,25 @@ var PcmImage = new Class({
 
 		    var data =  new Uint8Array( this.offline_analyser.frequencyBinCount );
 		    this.offline_analyser.getByteFrequencyData(data);
-		    // Array.reduce :(
-		    var values = 0;
-		    for (var j=0; j < data.length; j++) {
-		        values += data[j];
-		    }
-		    var average = parseInt( values / data.length );
+		    
+		    var clrIndex = 0;
+		    if (this.options.frequencyby == 'average'){
+			    var values = 0;
+			    for (var j=0; j < data.length; j++) {
+			        values += data[j];
+			    }
+			    clrIndex = parseInt( values / data.length );
+			}
+			else {
+			    var max = 0;
+			    for (var j=0; j < data.length; j++) {
+				       	if (data[j] > max) max = data[j]
+				    }
+				clrIndex = max;
+			}
 			this.cctx.globalAlpha = 255;
 			this.cctx.globalCompositeOperation = 'source-atop';
-			this.cctx.fillStyle = 'hsl(' + this.freqClrs[ average ]+')';
+			this.cctx.fillStyle = 'hsl(' + this.freqClrs[ clrIndex ]+')';
 			this.cctx.fillRect(
 				fromX, 0,
 				toX, this.canvas.height
