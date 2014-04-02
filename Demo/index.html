@@ -132,6 +132,61 @@
 </figure>
 -->
 
+
+<figure>
+	<figcaption>
+		<p>HTML default, style from class and element, implied <code>frequencyby='average'</code>:</p>
+		<div><pre><code><xmp>
+<style>
+	.pcmimg {
+		width:500px;
+		height:100px; 
+		border:1px solid black
+	}
+</style>
+<div class='pcmimg'
+	style='color:gray;background:white'
+	data-uri='oud1.wav'
+></div>
+		</xmp></code></pre></div>
+	</figcaption>
+
+	<div id='soundtest2a'
+		style='color:gray;background:white'
+		data-uri='oud1.wav'
+		class='pcmimg'
+	></div>
+</figure>
+
+<figure>
+	<figcaption>
+		<p>HTML default, style from class and element, <code>frequencyby='max'</code>, <code>pauseorjump=pause</code>:</p>
+		<div><pre><code><xmp>
+<div class='pcmimg'
+	style='color:gray;background:white'
+	data-frequencyby='max'
+	data-pauseorjump='pause'
+	data-uri='oud1.wav'
+></div>
+		</xmp></code></pre></div>
+	</figcaption>
+
+	<div id='soundtest2a'
+		style='color:gray;background:white'
+		data-uri='oud1.wav'
+		data-pauseorjump='pause'
+		data-frequencyby='max'
+		class='pcmimg'
+	></div>
+</figure>
+
+
+
+
+
+
+
+
 <figure>
 	<figcaption>
 		<p>HTML default, style from class:</p>
