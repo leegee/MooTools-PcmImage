@@ -126,6 +126,9 @@ var PcmImage = new Class({
 		if (! this.options.pauseorjump.match(/jump/i))
 			this.options.pauseorjump = 'pause';
 
+		if (! this.options.frequencyby.match(/max/i))
+			this.options.pauseorjump = 'average';
+
 		this.options.background = this.options.background 
 			|| this.element.getStyle('backgroundColor') || 'transparent';
 		this.options.strokestyle = this.options.strokestyle || this.element.getStyle('color');	
