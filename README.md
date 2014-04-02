@@ -74,23 +74,23 @@ Options
 
 `background` (string): Supplied to the canvas context to set the background color. Defaul tis to use the `backgroundColor` style setting of the `element`.
 
-`linewidth` (number): Supplied to the canvas context, defaults to 1.
-
-`saturation` (number): HSL saturation value for the wave form frequencies.
-
-`lightness` (number): HSL lightness value for the wave form frequencies.
-
-`overlayclr` (CSS colour value): colour for the played portion of the waveform.
-
-`asimg` (boolean): Replace canvas with image.
-
-`playable` (boolean): Can the graph be clicked to play?
-
 `overlayclr` (CSS colour value): Any valid CSS colour (hex, rgb, etc). Overlaid when image played
 
 `updateinterval` (float): Graph overlay update frequency in milliseconds
 
 `fftsize` (number) FFT bin size. (Small=slow and detailed.) An unsigned long value representing the size of the Fast Fourier Transform to be used to determine the frequency domain. It must be a non-zero power of 2 in the range between 512 and 2048, included; its default value is 2048. If not a power of 2, or outside the specified range, the exception INDEX_SIZE_ERR is thrown. https://developer.mozilla.org/en-US/docs/Web/API/AnalyserNode
+
+`frequencyby` (`average` or `max`): calculate frequency colour by the average frequency in the FFT bin, or that with the greatest amplitude.`
+
+`saturation` (number): HSL saturation value for the wave form frequencies.
+
+`lightness` (number): HSL lightness value for the wave form frequencies.
+
+`linewidth` (number): Supplied to the canvas context, defaults to 1.
+
+`asimg` (boolean): Replace canvas with image.
+
+`playable` (boolean): Can the graph be clicked to play?
 
 Events
 ------
