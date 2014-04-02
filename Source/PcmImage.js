@@ -330,10 +330,13 @@ var PcmImage = new Class({
 			this 
 		);
 
-		this.node.start( 
-			0, 
-			this.playbackTime	// 0 || where last paused
-		);
+		var self = this;
+		// setTimeout(function(){
+			self.node.start( 
+				0, 
+				self.playbackTime	// 0 || where last paused
+			);
+		// }, this.options.updateinterval);
 
 		this.fromX = this.playbackTime * this.overlay.pxPerSec;
 
@@ -380,7 +383,7 @@ var PcmImage = new Class({
 			this.cctx.putImageData(imgd, this.overlay.lastX, 0);
 			*/
 
-			// this.cctx.globalAlpha = 255;
+			// this.cctx.globalAlpha = 12;
 			this.cctx.globalCompositeOperation = 'source-atop';
 		    this.cctx.fillStyle = this.overlay.fg.all;
 		    this.cctx.fillRect(
@@ -420,7 +423,6 @@ var PcmImage = new Class({
 		        values += data[j];
 		    }
 		    var average = parseInt( values / data.length );
-						
 			this.cctx.globalAlpha = 255;
 			this.cctx.globalCompositeOperation = 'source-atop';
 			this.cctx.fillStyle = 'hsl(' + this.freqClrs[ average ]+')';
@@ -473,7 +475,7 @@ var PcmImage = new Class({
 		for (var i=0; i<=255; i++){
 			this.freqClrs.push( 
 				parseInt( 
-					1 + (i * 254 / 360)
+					2 * (i * 254 / 360) 
 				) + ',' +
 				this.options.saturation + '%,' +
 				this.options.lightness	+ '%'
