@@ -31,6 +31,14 @@ provides: [PcmImage]
 		onCanvasLoaded
 	
 		onXhrError
+
+		onCanvasLoaded
+
+		onRendered
+
+		onPlay
+
+		onStop
 	
 	Consider overriding `overlayImg`, which is called 
 	every `options.updateinterval` milliseconds when the
@@ -64,6 +72,12 @@ var PcmImage = new Class({
 		onCanvasLoaded: function(){},
 		onRendered: function(){	/* Fired when the waveform has been rendered. Default behaviour is to call `colourFrequencies()` to colour the waveform based on FFT frequency analysis. */
 			this.colourFrequencies();
+		},
+		onPlay: function(){
+			console.log( 'started at ', this.playbackTime, "("+this._actxStartTime+")" );
+		},
+		onStop: function(pause){
+			console.log( (pause? 'paused':'stopped'), ' at ', this.playbackTime )
 		}
 	},
 	
@@ -290,7 +304,7 @@ var PcmImage = new Class({
 		if (! pause){
 			this.playbackTime = 0;
 		}
-		console.log( (pause? 'paused':'stopped'), ' at ', this.playbackTime )
+		this.fireEvent('stop', pause);
 	},
 	
 	/** Specs say that the audio context currentTime is the time the audio context was created,
@@ -343,7 +357,7 @@ var PcmImage = new Class({
 		// '.pause' needs a place to start
 		this._actxStartTime = this.actx.currentTime;
 
-		console.log( 'started at ', this.playbackTime, "("+this._actxStartTime+")" );
+		this.fireEvent('play');
 	},
 
 
